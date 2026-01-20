@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.npm
+.yarn/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+#FRONTEND ÖZEL
+dist/
+build/
+out/
+.next/          # Next.js
+.nuxt/          # Nuxt.js
+.cache/         # Parcel, Gatsby
+.coverage/      # Test coverage
+
+.next/
+.nuxt/
+.gatsby/
+
+# BACKEND 
+*.db
+*.sqlite
+dump.sql
+
+# Uploads
+uploads/
+temp/
