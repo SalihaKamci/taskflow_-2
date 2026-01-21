@@ -2,7 +2,7 @@ const app = require("./src/app");
 const db = require("./src/models");
 require("dotenv").config();
 
-const PORT = process.env.PORT || 1111;
+const PORT = process.env.PORT || 8080;
 const startServer = async () => {
   try {
     await db.sequelize.authenticate();
