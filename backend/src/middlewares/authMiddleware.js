@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const {User} = require("../models")
-
+const { User } = require("../models"); 
 
 const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -20,27 +19,31 @@ const protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
   
- const userModel = await user.findByPk(decoded.id,{
+  
+    const user = await User.findByPk(decoded.id, {
       attributes: { 
         exclude: ['password']
       }
     });
 
-    if (!userModel) {
+    if (!user) {
       return res.status(401).json({ message: "User not Found" });
     }
 
-    if (userModel.forcePasswordChange) {
+    if (user.forcePasswordChange) {
       return res.status(403).json({ 
         error: 'Password change required',
         code: 'FORCE_PASSWORD_CHANGE',
-        userId: userModel.id
+        userId: user.id
       });
     }
+    
+ 
     req.user = user;
     next();
   } catch (error) {
     res.status(401).json({ message: "Auth error:" });
   }
 };
+
 module.exports = { protect };

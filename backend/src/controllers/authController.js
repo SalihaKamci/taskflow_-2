@@ -18,8 +18,7 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "email invalid" });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
+   const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             console.log(`password invalid`);
             return res.status(401).json({ message: "password invalid" });
@@ -63,8 +62,7 @@ const changePassword = async (req, res) => {
         }
 
         const user = await User.findByPk(userId);
-
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
+ const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: " old password" });
         }

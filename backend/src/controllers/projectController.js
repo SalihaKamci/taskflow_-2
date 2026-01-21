@@ -8,7 +8,7 @@ const createProject = async (req, res) => {
     const project = await Project.create({
       name,
       description,
-      status: PROJECT_STATUS.includes(status) ? status : PROJECT_STATUS.ACTIVE,
+status: Object.values(PROJECT_STATUS).includes(status) ? status : PROJECT_STATUS.ACTIVE,
       createdBy: req.user.id
     });
 

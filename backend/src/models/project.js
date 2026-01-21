@@ -22,11 +22,13 @@ const Project = sequelize.define(
             type: DataTypes.TEXT,
         },
 
-
-        status: {
-            type: DataTypes.ENUM("Active", "Completed", "On Hold"),
-            defaultValue: "Active",
-        },
+status: {
+    type: DataTypes.ENUM("Active", "Completed", "On Hold"),
+    defaultValue: "Active",
+    validate: {
+        isIn: [["Active", "Completed", "On Hold"]]
+    }
+},
         createdBy: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -36,10 +38,6 @@ const Project = sequelize.define(
             },
         },
 
-        adminId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        }
     },
     {
         tableName: "projects",

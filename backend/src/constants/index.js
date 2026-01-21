@@ -7,11 +7,11 @@ module.exports = {
     ON_HOLD: 'on_hold' 
   },
   
-  PROJECT_STATUS: {
-    ACTIVE: 'active',
-    COMPLETED: 'completed',
-    ARCHIVED: 'archived'
-  },
+PROJECT_STATUS: {
+    ACTIVE: 'Active',           
+    COMPLETED: 'Completed',     
+    ON_HOLD: 'On Hold'          
+},
   
   USER_ROLES: {
     ADMIN: 'admin',
