@@ -22,9 +22,9 @@ const Task = sequelize.define(
         status: {
             type: DataTypes.ENUM(
                 "Todo",
-                "In Progress",
+                "In_progress",
                 "Completed",
-                "On Hold",
+                "On_hold",
                 "Blocked"
             ),
             defaultValue: "Todo",
