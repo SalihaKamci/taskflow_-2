@@ -84,7 +84,7 @@ const updateTaskStatus  = async (req, res) => {
 
         
 
-        if (!allStatuses || !Object.values(TASK_STATUS).includes(status)) {
+        if (!status || !Object.values(TASK_STATUS).includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
 
@@ -100,14 +100,20 @@ const updateTaskStatus  = async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: "Task not found" });
         }
-if (!isAdmin && !isAssignedEmployee) {
+   if (req.user.role !== USER_ROLES.EMPLOYEE) {
       return res.status(403).json({ 
         message: "You are not authorized to update this task" 
       });
     }
-
-        task.status = status;
+  if (task.assignedUserId !== req.user.id) {
+            return res.status(403).json({ 
+                message: "You can only update your own tasks" 
+            });
+        }
+        const oldStatus = task.status;
+         task.status = status;
         await task.save();
+       
            const updatedTask = await Task.findByPk(id, {
       include: [
         { 
@@ -128,7 +134,7 @@ if (!isAdmin && !isAssignedEmployee) {
       statusChange: {
         from: oldStatus,
         to: status,
-        updatedBy: isAdmin ? "admin" : "employee"
+     updatedBy: "employee"
       }
     });
     } catch (error) {
@@ -136,33 +142,44 @@ if (!isAdmin && !isAssignedEmployee) {
         res.status(500).json({ message:"Failed to update task status", error });
     }
 };
-
 const getAllTasks = async (req, res) => {
     try {
-        const {
-            assignedUserId,
-        } = req.query;
+        let where = {};
 
-        const where = {};
-
+       
         if (req.user.role === USER_ROLES.EMPLOYEE) {
+           
             where.assignedUserId = req.user.id;
-        } else if (assignedUserId) {
-            where.assignedUserId = assignedUserId;
+        }  else  if (req.user.role === USER_ROLES.ADMIN) {
+              
+           
+            where.createdBy = req.user.id;  
         }
 
+      
         const tasks = await Task.findAll({
             where,
             include: [
-                { model: Project, attributes: ["id", "name"] },
-                { model: User, as: "assignedUser", attributes: ["id", "fullName"] },
-                { model: User, as: "creator", attributes: ["id", "fullName"] }
+                { 
+                    model: Project, 
+                    attributes: ["id", "name"] 
+                },
+                { 
+                    model: User, 
+                    as: "assignedUser", 
+                    attributes: ["id", "fullName", "email"] 
+                },
+                { 
+                    model: User, 
+                    as: "creator", 
+                    attributes: ["id", "fullName", "email"] 
+                }
             ],
             order: [["dueDate", "ASC"]],
         });
 
         res.json(tasks);
-    }catch (error) {
+    } catch (error) {
         console.error("Get tasks error:", error);
         res.status(500).json({
             message: "Failed to retrieve tasks",

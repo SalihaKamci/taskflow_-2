@@ -34,24 +34,45 @@ const Task = sequelize.define(
             type: DataTypes.ENUM("Critical", "High", "Medium", "Low"),
             defaultValue: "Low",
         },
-
-        startDate: {
-            type: DataTypes.DATEONLY,
-            allowNull: false,
-        },
-
-        endDate: {
-            type: DataTypes.DATEONLY,
-            allowNull: false,
-        },
+ dueDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+      validate: {
+        isDate: true,
+        isAfterCurrentDate(value) {
+          if (new Date(value) < new Date()) {
+            throw new Error('Due date must be in the future');
+          }
+        }
+      }
+    },
         assignedUserId: {
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
                 model: 'users',
                 key: 'id'
-            }
+            },
+             onDelete: 'SET NULL'
         },
+          projectId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'projects',
+        key: 'id'
+      },
+      onDelete: 'CASCADE' 
+    },
+       createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
+    },
+
     },
     {
         tableName: "tasks",

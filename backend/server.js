@@ -2,16 +2,22 @@ const app = require("./src/app");
 const db = require("./src/models");
 require("dotenv").config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 1111;
+const startServer = async () => {
+  try {
+    await db.sequelize.authenticate();
+    console.log("Database connected");
 
-db.sequelize.authenticate().then(() => {
-    console.log("Database connect");
-    return db.sequelize.sync({ alter: true });
-  }).then(() => {
+    await db.sequelize.sync({ alter: true });
     console.log("Models synced");
+
     app.listen(PORT, () => {
-      console.log(`Server on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
-  }) .catch((err) => {
-    console.error("DB connect error:", err);
-  });
+  } catch (error) {
+    console.error("Server failed to start:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
