@@ -2,6 +2,7 @@ import { Menu } from "antd";
 import {
   DashboardOutlined,
   ProjectOutlined,
+  TeamOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -35,12 +36,18 @@ const Sidebar = () => {
           icon: <ProjectOutlined />,
           label: "Projects",
         },
+           {
+          key: "/admin/employees",
+          icon: <TeamOutlined />,
+          label: "Employees",
+        },
         {
           key: "logout",
           icon: <LogoutOutlined />,
           label: "Logout",
           danger: true,
         },
+     
       ]}
     />
   );

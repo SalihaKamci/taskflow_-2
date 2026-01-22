@@ -30,13 +30,13 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: "User not Found" });
     }
 
-    if (user.forcePasswordChange) {
-      return res.status(403).json({ 
-        error: 'Password change required',
-        code: 'FORCE_PASSWORD_CHANGE',
-        userId: user.id
-      });
-    }
+    // if (user.forcePasswordChange) {
+    //   return res.status(403).json({ 
+    //     error: 'Password change required',
+    //     code: 'FORCE_PASSWORD_CHANGE',
+    //     userId: user.id
+    //   });
+    // }
     
  
     req.user = user;

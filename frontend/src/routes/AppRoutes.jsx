@@ -2,7 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import Projects from "../pages/admin/projects/index";
 import Dashboard from "../pages/AdminDashboard";
-import Login from "../pages/Login";
+import Login from "../pages/auth/Login";
+import Employees from "../pages/admin/employess/index";
+import ChangePassword from "../pages/auth/ChangePassword";
 
 const AppRoutes = () => {
   return (
@@ -15,8 +17,9 @@ const AppRoutes = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
+       <Route path="employees" element={<Employees />} />
       </Route>
-
+<Route path="/change-password" element={<ChangePassword />} />
       <Route path="*" element={<Navigate to="/admin" />} />
     </Routes>
   );
