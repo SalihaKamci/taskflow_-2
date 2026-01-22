@@ -3,6 +3,7 @@ import {
   DashboardOutlined,
   ProjectOutlined,
   TeamOutlined,
+    CheckSquareOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -36,6 +37,12 @@ const Sidebar = () => {
           icon: <ProjectOutlined />,
           label: "Projects",
         },
+                {
+          key: "/admin/tasks",
+          icon: <CheckSquareOutlined />,
+          label: "Tasks",
+        },
+
            {
           key: "/admin/employees",
           icon: <TeamOutlined />,

@@ -1,11 +1,11 @@
 module.exports = {
-  TASK_STATUS: {
-    PENDING: 'pending',
-    IN_PROGRESS: 'in_progress',
-    COMPLETED: 'completed',
-    BLOCKED: 'blocked',
-    ON_HOLD: 'on_hold' 
-  },
+TASK_STATUS: {
+    TODO: 'Todo',
+    IN_PROGRESS: 'In_progress', 
+    COMPLETED: 'Completed',
+    BLOCKED: 'Blocked',
+    ON_HOLD: 'On_hold'
+},
   
 PROJECT_STATUS: {
     ACTIVE: 'Active',           

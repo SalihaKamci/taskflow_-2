@@ -30,10 +30,10 @@ const Task = sequelize.define(
             defaultValue: "Todo",
         },
 
-        priority: {
-            type: DataTypes.ENUM("Critical", "High", "Medium", "Low"),
-            defaultValue: "Low",
-        },
+      priority: {
+    type: DataTypes.ENUM("critical", "high", "medium", "low"),  
+    defaultValue: "low",
+},
  dueDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,

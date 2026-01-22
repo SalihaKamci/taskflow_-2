@@ -8,11 +8,10 @@ const createTask = async (req, res) => {
             description,
             projectId,
             assignedUserId,
-            startDate,
-            endDate,
+            dueDate,
             priority,
         } = req.body;
-
+   console.log("Gelen veri:", req.body);
 
         if (!title || !projectId) {
             return res.status(400).json({
@@ -45,10 +44,9 @@ const createTask = async (req, res) => {
             description: description,
             projectId,
             assignedUserId: assignedUserId,
-            startDate,
-            endDate,
+            dueDate,
             priority: ["low", "medium", "high"].includes(priority) ? priority : "medium",
-            status: assignedUserId ? TASK_STATUS.PENDING : TASK_STATUS.ON_HOLD,
+          status: assignedUserId ? TASK_STATUS.TODO : TASK_STATUS.ON_HOLD,
             createdBy: req.user.id
         });
 
