@@ -1,5 +1,5 @@
 const { Project, Task, User } = require("../models");
-const { Op } = require("sequelize");
+const { Op , Sequelize} = require("sequelize");
 const { TASK_STATUS ,USER_ROLES  } = require("../constants");
 
 const getDashboardStats  = async (req, res) => {
@@ -24,7 +24,7 @@ const getDashboardStats  = async (req, res) => {
         todayTasks,
         weeklyTasks,
         overdueTasks,
-        pendingTasks,
+        todoTasks,    
         onHoldTasks,
         inProgressTasks,
         completedTasks
@@ -53,13 +53,64 @@ const getDashboardStats  = async (req, res) => {
             status: { [Op.ne]: TASK_STATUS.COMPLETED }
           }
         }),
-        Task.count({ where: { status: TASK_STATUS.PENDING } }),
+        Task.count({ where: { status: TASK_STATUS.TODO } }),
         Task.count({ where: { status: TASK_STATUS.ON_HOLD } }),
         Task.count({ where: { status: TASK_STATUS.IN_PROGRESS } }),
         Task.count({ where: { status: TASK_STATUS.COMPLETED } })
       ]);
+     const overdueTasksList = await Task.findAll({
+        where: {
+          dueDate: { [Op.lt]: today },
+          status: { [Op.ne]: TASK_STATUS.COMPLETED }
+        },
+        include: [
+          { 
+            model: Project, 
+            as:"project",
+            attributes: ["id", "name"] 
+          },
+          { 
+            model: User, 
+            as: "assignedUser",
+            attributes: ["id", "fullName", "email"] 
+          }
+        ],
+        order: [["dueDate", "ASC"]],
+        attributes: ["id", "title", "dueDate", "priority", "status", "description"]
+      });
+        const projectCompletionRates = await Project.sequelize.query(`
+        SELECT 
+          p.id,
+          p.name,
+          COUNT(t.id) as totalTasks,
+          SUM(CASE WHEN t.status IN ('Completed', 'completed') THEN 1 ELSE 0 END) as completedTasks
+        FROM projects p
+        LEFT JOIN tasks t ON p.id = t.projectId
+        WHERE p.createdBy = :userId
+        GROUP BY p.id, p.name
+        ORDER BY p.createdAt DESC
+      `, {
+        replacements: { userId: userId },
+        type: Project.sequelize.QueryTypes.SELECT
+      });
 
-     
+      const formattedCompletionRates = projectCompletionRates.map(row => {
+        const total = parseInt(row.totalTasks) || 0;
+        const completed = parseInt(row.completedTasks) || 0;
+        const completionRate = total > 0
+          ? Math.round((completed / total) * 100)
+          : 0;
+
+        return {
+          id: row.id,
+          name: row.name,
+          totalTasks: total,
+          completedTasks: completed,
+          completionRate: completionRate
+        };
+      }).sort((a, b) => b.completionRate - a.completionRate);
+
+
       res.json({
         role: "admin",
         totals: {
@@ -71,11 +122,13 @@ const getDashboardStats  = async (req, res) => {
           today: todayTasks,
           weekly: weeklyTasks,
           overdue: overdueTasks,
-          pending: pendingTasks,
+          pending:    todoTasks,  
           onHold: onHoldTasks,
           inProgress: inProgressTasks,
           completed: completedTasks
         },
+   projectCompletionRates: formattedCompletionRates,
+         overdueTasksList: overdueTasksList
       });
 
     } else {
@@ -84,7 +137,7 @@ const getDashboardStats  = async (req, res) => {
         todayTasks,
         weeklyTasks,
         overdueTasks,
-        pendingTasks,
+           todoTasks, 
         inProgressTasks,
         completedTasks,
         projectCount
@@ -115,7 +168,7 @@ const getDashboardStats  = async (req, res) => {
         Task.count({
           where: {
             assignedUserId: userId,
-            status: TASK_STATUS.PENDING
+            status: TASK_STATUS.TODO
           }
         }),
         Task.count({
@@ -172,7 +225,7 @@ const getDashboardStats  = async (req, res) => {
           today: todayTasks,
           weekly: weeklyTasks,
           overdue: overdueTasks,
-          pending: pendingTasks,
+          pending: todoTasks, 
           inProgress: inProgressTasks,
           completed: completedTasks
         },
@@ -188,6 +241,7 @@ const getDashboardStats  = async (req, res) => {
     });
   }
 };
+
    
    
 

@@ -1,71 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-800 antialiased;
   }
-  a:hover {
-    color: #747bff;
+}
+
+@layer components {
+  .kanban-column {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  .kanban-item {
+    @apply bg-white rounded-lg border border-gray-200 hover:border-blue-300 
+           hover:shadow-lg transition-all duration-300 cursor-move;
   }
+  
+  .stat-card {
+    @apply bg-white rounded-xl shadow-lg border-0 hover:shadow-xl 
+           transition-shadow duration-300;
+  }
+  
+  .gradient-btn {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 border-none 
+           hover:shadow-lg transition-all duration-300;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 
+           shadow-lg rounded-2xl;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full hover:bg-gray-500;
+}
+
+/* Line Clamp Utility */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Smooth Transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Ant Design Overrides */
+.ant-card {
+  @apply rounded-xl;
+}
+
+.ant-btn-primary {
+  @apply gradient-btn;
+}
+
+.ant-menu {
+  @apply border-none;
+}
+
+.ant-table {
+  @apply rounded-lg overflow-hidden;
+}
+
+.ant-modal-content {
+  @apply rounded-2xl;
+}
+
+.ant-tag {
+  @apply rounded-full px-3;
 }
