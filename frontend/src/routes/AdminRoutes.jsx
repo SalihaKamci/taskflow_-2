@@ -13,7 +13,7 @@ const AdminRoutes = () => {
     <Routes>
       <Route path="projects" element={<Projects />} />
       <Route path="projects/new" element={<ProjectForm />} />
-      <Route path="projects/:id" element={<ProjectDetail />} />
+     <Route path="projects/:id" element={<ProjectDetail />} />
       <Route path="projects/:id/edit" element={<ProjectForm />} />
 
         <Route index element={<Tasks />} />

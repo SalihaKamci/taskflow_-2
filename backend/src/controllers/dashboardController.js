@@ -110,6 +110,69 @@ const getDashboardStats  = async (req, res) => {
         };
       }).sort((a, b) => b.completionRate - a.completionRate);
 
+      
+      const employeeTaskStats = await User.findAll({
+        where: { 
+          role: USER_ROLES.EMPLOYEE 
+        },
+        attributes: [
+          'id',
+          'fullName',
+          'email',
+          [Sequelize.fn('COUNT', Sequelize.col('assignedTasks.id')), 'totalAssignedTasks'],
+          [
+            Sequelize.fn('SUM', 
+              Sequelize.literal(`CASE WHEN assignedTasks.status = '${TASK_STATUS.COMPLETED}' THEN 1 ELSE 0 END`)
+            ), 
+            'completedTasks'
+          ],
+          [
+            Sequelize.fn('SUM', 
+              Sequelize.literal(`CASE WHEN assignedTasks.status = '${TASK_STATUS.IN_PROGRESS}' THEN 1 ELSE 0 END`)
+            ), 
+            'inProgressTasks'
+          ],
+          [
+            Sequelize.fn('SUM', 
+              Sequelize.literal(`CASE WHEN assignedTasks.status = '${TASK_STATUS.TODO}' THEN 1 ELSE 0 END`)
+            ), 
+            'pendingTasks'
+          ],
+          [
+            Sequelize.fn('SUM', 
+              Sequelize.literal(`CASE WHEN assignedTasks.dueDate < CURDATE() AND assignedTasks.status != '${TASK_STATUS.COMPLETED}' THEN 1 ELSE 0 END`)
+            ), 
+            'overdueTasks'
+          ]
+        ],
+        include: [{
+          model: Task,
+          as: 'assignedTasks',
+          attributes: [],
+          required: false 
+        }],
+        group: ['User.id'],
+        order: [
+          [Sequelize.literal('completedTasks'), 'DESC'],
+          [Sequelize.literal('totalAssignedTasks'), 'DESC']
+        ],
+        raw: true
+      });
+
+  
+      const formattedEmployeeStats = employeeTaskStats.map(emp => ({
+        id: emp.id,
+        fullName: emp.fullName,
+        email: emp.email,
+        totalAssignedTasks: parseInt(emp.totalAssignedTasks) || 0,
+        completedTasks: parseInt(emp.completedTasks) || 0,
+        inProgressTasks: parseInt(emp.inProgressTasks) || 0,
+        pendingTasks: parseInt(emp.pendingTasks) || 0,
+        overdueTasks: parseInt(emp.overdueTasks) || 0,
+        completionRate: emp.totalAssignedTasks > 0 
+          ? Math.round((parseInt(emp.completedTasks) / parseInt(emp.totalAssignedTasks)) * 100)
+          : 0
+      }));
 
       res.json({
         role: "admin",
@@ -127,8 +190,9 @@ const getDashboardStats  = async (req, res) => {
           inProgress: inProgressTasks,
           completed: completedTasks
         },
-   projectCompletionRates: formattedCompletionRates,
-         overdueTasksList: overdueTasksList
+        projectCompletionRates: formattedCompletionRates,
+        overdueTasksList: overdueTasksList,
+        employeeStats: formattedEmployeeStats 
       });
 
     } else {
@@ -241,8 +305,5 @@ const getDashboardStats  = async (req, res) => {
     });
   }
 };
-
-   
-   
 
 module.exports = {getDashboardStats};

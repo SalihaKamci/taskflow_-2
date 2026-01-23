@@ -1,44 +1,85 @@
-import { Modal, Form, Input, Select } from "antd";
+import { useEffect, useState } from "react";
+import { Modal, Form, Input, Select, message } from "antd";
 import { createProject, updateProject } from "../../../api/project";
 
 const ProjectForm = ({ open, onClose, onSuccess, project }) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (project) {
+      form.setFieldsValue({
+        name: project.name,
+        description: project.description,
+        status: project.status
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [project, form]);
 
   const handleSubmit = async (values) => {
-    if (project) {
-      await updateProject(project.id, values);
-    } else {
-      await createProject(values);
+    try {
+      setLoading(true);
+      if (project) {
+        await updateProject(project.id, values);
+        message.success("Project updated successfully");
+      } else {
+        await createProject(values);
+        message.success("Project created successfully");
+      }
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Project form error:", error);
+      message.error(project ? "Failed to update project" : "Failed to create project");
+    } finally {
+      setLoading(false);
     }
-    onSuccess();
-    onClose();
-    form.resetFields();
   };
 
   return (
     <Modal
       open={open}
-      title={project ? "Proje Güncelle" : "Yeni Proje"}
+      title={project ? "Update Project" : "New Project"}
       onCancel={onClose}
       onOk={() => form.submit()}
+      confirmLoading={loading}
+      okText={project ? "Update" : "Create"}
+      cancelText="Cancel"
     >
-      <Form form={form} onFinish={handleSubmit} initialValues={project}>
-        <Form.Item name="name" label="Proje Adı" rules={[{ required: true }]}>
-          <Input />
+      <Form 
+        form={form} 
+        onFinish={handleSubmit} 
+        layout="vertical"
+        initialValues={{
+          status: "Active"
+        }}
+      >
+        <Form.Item 
+          name="name" 
+          label="Project Name" 
+          rules={[{ required: true, message: 'Please enter project name' }]}
+        >
+          <Input placeholder="Enter project name" />
         </Form.Item>
 
-        <Form.Item name="description" label="Açıklama">
-          <Input.TextArea />
+        <Form.Item name="description" label="Description">
+          <Input.TextArea 
+            placeholder="Enter project description" 
+            rows={4}
+          />
         </Form.Item>
 
-        <Form.Item name="status" label="Durum">
-        <Select
-  options={[
-    { value: "Active", label: "Aktif" },
-    { value: "Completed", label: "Tamamlandı" },
-    { value: "On Hold", label: "Beklemede" },
-  ]}
-/>
+        <Form.Item name="status" label="Status">
+          <Select
+            options={[
+              { value: "Active", label: "Active" },
+              { value: "Completed", label: "Completed" },
+              { value: "On Hold", label: "On Hold" },
+            ]}
+            placeholder="Select status"
+          />
         </Form.Item>
       </Form>
     </Modal>
