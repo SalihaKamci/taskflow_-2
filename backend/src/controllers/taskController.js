@@ -55,6 +55,7 @@ const createTask = async (req, res) => {
             include: [
                 {
                     model: Project,
+                    as: 'project',
                     attributes: ['id', 'name', 'status']
                 },
                 {
@@ -71,6 +72,7 @@ const createTask = async (req, res) => {
             task: createdTask
         });
     } catch (error) {
+         console.error("Task creation error:", error);
         res.status(500).json({ message: "Task creation error", error });
     }
 };
@@ -116,6 +118,7 @@ const updateTaskStatus  = async (req, res) => {
       include: [
         { 
           model: Project, 
+            as: 'project',
           attributes: ['id', 'name'] 
         },
         { 
@@ -160,6 +163,7 @@ const getAllTasks = async (req, res) => {
             include: [
                 { 
                     model: Project, 
+                    as: 'project',
                     attributes: ["id", "name"] 
                 },
                 { 
@@ -193,6 +197,7 @@ const getTaskById = async (req, res) => {
       include: [
         { 
           model: Project, 
+           as: 'project',
           attributes: ['id', 'name', 'description', 'status'] 
         },
         { 
@@ -232,9 +237,158 @@ const getTaskById = async (req, res) => {
     });
   }
 };
+const updateTask = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            title,
+            description,
+            projectId,
+            assignedUserId,
+            dueDate,
+            priority,
+            status
+        } = req.body;
+
+        console.log("Update task request:", { id, body: req.body });
+
+  
+        const task = await Task.findByPk(id);
+        if (!task) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+      
+        if (req.user.role !== USER_ROLES.ADMIN && task.createdBy !== req.user.id) {
+            return res.status(403).json({ 
+                message: "You are not authorized to update this task" 
+            });
+        }
+
+   
+        if (projectId && projectId !== task.projectId) {
+            const project = await Project.findByPk(projectId);
+            if (!project) {
+                return res.status(404).json({ message: "Project not found" });
+            }
+        }
+
+   
+        if (assignedUserId && assignedUserId !== task.assignedUserId) {
+            const user = await User.findOne({
+                where: {
+                    id: assignedUserId,
+                    role: USER_ROLES.EMPLOYEE
+                }
+            });
+            if (!user) {
+                return res.status(404).json({
+                    message: "Assigned employee not found"
+                });
+            }
+        }
+
+    
+        await task.update({
+            title: title || task.title,
+            description: description !== undefined ? description : task.description,
+            projectId: projectId || task.projectId,
+            assignedUserId: assignedUserId !== undefined ? assignedUserId : task.assignedUserId,
+            dueDate: dueDate || task.dueDate,
+            priority: priority || task.priority,
+            status: status || task.status
+        });
+
+        const updatedTask = await Task.findByPk(id, {
+            include: [
+                {
+                    model: Project,
+                    as: 'project',
+                    attributes: ['id', 'name', 'status']
+                },
+                {
+                    model: User,
+                    as: "assignedUser",
+                    attributes: ["id", "fullName", "email"]
+                },
+                {
+                    model: User,
+                    as: "creator",
+                    attributes: ["id", "fullName", "email"]
+                }
+            ]
+        });
+
+        res.json({
+            message: "Task updated successfully",
+            task: updatedTask
+        });
+    } catch (error) {
+        console.error("Update task error:", error);
+        res.status(500).json({ 
+            message: "Failed to update task", 
+            error: error.message 
+        });
+    }
+};
+const deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+
+    const task = await Task.findByPk(id, {
+      include: [
+        { 
+          model: Project, 
+          as: 'project',
+          attributes: ['id', 'name'] 
+        }
+      ]
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+
+    const isAdmin = req.user.role === USER_ROLES.ADMIN;
+    const isCreator = task.createdBy === req.user.id;
+    
+    if (!isAdmin && !isCreator) {
+      return res.status(403).json({ 
+        message: "You are not authorized to delete this task. Only admins or the task creator can delete tasks." 
+      });
+    }
+
+
+ 
+    await task.destroy();
+
+    res.json({
+      message: "Task deleted successfully",
+      deletedTask: {
+        id: task.id,
+        title: task.title,
+        project: task.project ? task.project.name : null,
+        status: task.status,
+        deletedBy: req.user.role,
+        deletedAt: new Date()
+      }
+    });
+
+  } catch (error) {
+    console.error("Delete task error:", error);
+    res.status(500).json({ 
+      message: "Failed to delete task", 
+      error: error.message 
+    });
+  }
+};
 module.exports = {
     createTask,
 updateTaskStatus,
     getAllTasks,
-    getTaskById
+    getTaskById,
+    updateTask,
+    deleteTask
 };
