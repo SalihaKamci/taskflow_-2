@@ -39,6 +39,10 @@ const User = sequelize.define(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+         avatarUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     },
     {
         tableName: "users",

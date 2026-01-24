@@ -8,6 +8,8 @@ router.get("/", protect, getAllTasks);
 router.get("/:id", protect, getTaskById);
 router.patch("/:id/status", protect, updateTaskStatus);
 router.put("/:id", protect, isAdmin, updateTask);
+// router.post("/", protect, multipleFileUpload('files', 10), createTask);
+// router.put("/:id", protect, multipleFileUpload('files', 10),  updateTask);
 
 router.delete("/:id", protect, isAdmin, deleteTask);
 module.exports = router;

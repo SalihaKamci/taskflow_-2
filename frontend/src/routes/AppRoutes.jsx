@@ -8,6 +8,8 @@ import Login from "../pages/auth/Login";
 import Employees from "../pages/admin/employess/index";
 import ChangePassword from "../pages/auth/ChangePassword";
 import AdminTaskRoutes from "./AdminTaskRoutes";
+import UserProfile from  "../pages/auth/UserProfile";
+
 
 
 const AppRoutes = () => {
@@ -25,6 +27,7 @@ const AppRoutes = () => {
         <Route path="projects/:id/edit" element={<ProjectForm />} /> {/* Buraya ekleyin */}
        <Route path="employees" element={<Employees />} />
        <Route path="tasks/*" element={<AdminTaskRoutes />} />
+         <Route path="profile" element={<UserProfile />} />
       </Route>
 <Route path="/change-password" element={<ChangePassword />} />
       <Route path="*" element={<Navigate to="/admin" />} />
